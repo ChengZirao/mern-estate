@@ -12,6 +12,17 @@ const userSchema = new mongoose.Schema(
       required: [true, "Please provide us your username!"],
       unique: [true, "This username has been already in use!"],
     },
+    email: {
+      type: String,
+      required: [true, "Please tell us your email address!"],
+      unique: true,
+      // Convert the email string to lowercase
+      lowercase: true,
+      // validate: {
+      //   validator: validator.isEmail,
+      //   message: "Please enter a valid email address!",
+      // },
+    },
     password: {
       type: String,
       required: [true, "Please set your password!"],
@@ -33,6 +44,11 @@ userSchema.pre("save", async function (next) {
 
   next();
 });
+
+userSchema.methods.verifyPassword = async (candidatePassword, userPassword) => {
+  // Compare the original password the user inputted with the encrypted password stored in the database
+  return await bcrypt.compare(candidatePassword, userPassword);
+};
 
 const User = mongoose.model("User", userSchema);
 

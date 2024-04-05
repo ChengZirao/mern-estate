@@ -25,6 +25,7 @@ export default function SignUp() {
       body: JSON.stringify(formData),
     });
     const data = await res.json();
+    console.log(data);
     if (data.status === "failed") {
       setError(data.message);
       setLoading(false);
@@ -74,7 +75,7 @@ export default function SignUp() {
       <div className="flex gap-2 mt-5">
         <p>Have an account?</p>
         <Link to={"/sign-in"}>
-          <span className=" text-blue-500 hover:underline">Sign Up</span>
+          <span className=" text-blue-500 hover:underline">Sign In</span>
         </Link>
       </div>
       {error ? <p className="text-red-500 mt-5">{error}</p> : ""}

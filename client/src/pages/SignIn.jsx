@@ -1,11 +1,17 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  signInStart,
+  signInSuccess,
+  signInFailure,
+} from "../redux/user/userSlice";
 
 export default function SignIn() {
   const [formData, setFormData] = useState({});
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const { loading, error } = useSelector((state) => state.user);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     setFormData({
@@ -16,7 +22,8 @@ export default function SignIn() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    // Stage 1: while submitting, disable the 'Sign In' button by setting 'loading = true'
+    dispatch(signInStart());
     const res = await fetch("http://localhost:3333/api/auth/signin", {
       method: "POST",
       headers: {
@@ -27,12 +34,12 @@ export default function SignIn() {
     const data = await res.json();
     console.log(data);
     if (data.status === "failed") {
-      setError(data.message);
-      setLoading(false);
+      // Stage 2 (failed branch): if sign in failed, set the data.message to 'error' and enable 'Sign Up' button by setting 'loading = false'
+      dispatch(signInFailure(data.message));
       return;
     }
-    setLoading(false);
-    setError(null);
+    // Stage 2 (success branch): if sign in success, set the data to 'currentUser' and enable 'Sign Up' button by setting 'loading = false'
+    dispatch(signInSuccess(data));
     navigate("/");
   };
 

@@ -2,6 +2,7 @@
 // (To use this shortcut, need to download 'Tailwind CSS IntelliSense' extension first)
 
 import Header from "./components/Header";
+import PrivateRoute from "./components/PrivateRoute";
 import About from "./pages/About";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
@@ -32,10 +33,14 @@ export default function App() {
           path="/about"
           element={<About />}
         />
-        <Route
-          path="/profile"
-          element={<Profile />}
-        />
+        {/* When visit "/profile", if user has logged in, navigate to <Outlet /> (<Profile />)
+            Else, redirect to "/sign-in" */}
+        <Route element={<PrivateRoute />}>
+          <Route
+            path="/profile"
+            element={<Profile />}
+          />
+        </Route>
       </Routes>
     </BrowserRouter>
   );

@@ -2,6 +2,7 @@ const User = require("../models/userModel");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
 
 const createAndSendToken = (user, statusCode, res) => {
   // 1) Create token
@@ -83,4 +84,32 @@ exports.signin = catchAsync(async (req, res, next) => {
 
   // If everything is ok, send token to the client
   createAndSendToken(user, 200, res);
+});
+
+exports.googleAuth = catchAsync(async (req, res, next) => {
+  // 1) Check if the user exists
+  const user = await User.findOne({ email: req.body.email }).select("-__v");
+  if (user) {
+    createAndSendToken(user, 200, res);
+  } else {
+    // If user does not exist, sign up an account first
+    //! Have to create a password for this user, otherwise sign up won't work
+    // Create a random 16-character-length password
+    const generatedPassword =
+      Math.random().toString(36).slice(-8) +
+      Math.random().toString(36).slice(-8);
+    const hashedPassword = await bcrypt.hash(generatedPassword, 12);
+    const newUser = await User.create({
+      username:
+        // Convert username to lowercase + 4 random numbers format
+        // E.g. user "Zirao Cheng" will be converted to "ziraocheng8459"
+        // req.body.name.split(" ").join("").toLowerCase() + Math.random().toString(36).slice(-4),
+        req.body.name.split(" ").join("").toLowerCase() +
+        (Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000),
+      email: req.body.email,
+      password: hashedPassword,
+      avatar: req.body.photo,
+    });
+    createAndSendToken(newUser, 201, res);
+  }
 });

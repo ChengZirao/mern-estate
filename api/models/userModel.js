@@ -30,6 +30,11 @@ const userSchema = new mongoose.Schema(
       // Never show the password in any output
       select: false,
     },
+    avatar: {
+      type: String,
+      default:
+        "https://pics0.baidu.com/feed/3bf33a87e950352ae8acd52954f19efeb3118b04.jpeg?token=e298da5c375b4d07ca3c4f18369cd393",
+    },
   },
   { timestamps: true }
 );

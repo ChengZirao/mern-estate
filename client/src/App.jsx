@@ -8,6 +8,7 @@ import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
+import Forgot from "./pages/Forgot";
 
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
@@ -41,6 +42,10 @@ export default function App() {
             element={<Profile />}
           />
         </Route>
+        <Route
+          path="/forgot"
+          element={<Forgot />}
+        />
       </Routes>
     </BrowserRouter>
   );

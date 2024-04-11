@@ -4,6 +4,7 @@
 const mongoose = require("mongoose");
 // const validator = require("validator");
 const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
 
 const userSchema = new mongoose.Schema(
   {
@@ -35,6 +36,8 @@ const userSchema = new mongoose.Schema(
       default:
         "https://pics0.baidu.com/feed/3bf33a87e950352ae8acd52954f19efeb3118b04.jpeg?token=e298da5c375b4d07ca3c4f18369cd393",
     },
+    passwordResetToken: String,
+    passwordResetExpires: Date,
   },
   { timestamps: true }
 );
@@ -53,6 +56,23 @@ userSchema.pre("save", async function (next) {
 userSchema.methods.verifyPassword = async (candidatePassword, userPassword) => {
   // Compare the original password the user inputted with the encrypted password stored in the database
   return await bcrypt.compare(candidatePassword, userPassword);
+};
+
+userSchema.methods.createPasswordResetToken = function () {
+  // Create a reset token
+  const resetToken = crypto.randomBytes(32).toString("hex");
+
+  // Encrypt the reset token, and store it in the database
+  this.passwordResetToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  // Reset token will be expired in 10 min
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+
+  // Return the unencrypted token back
+  return resetToken;
 };
 
 const User = mongoose.model("User", userSchema);

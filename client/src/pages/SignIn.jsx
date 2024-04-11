@@ -10,6 +10,7 @@ import OAuth from "../components/OAuth";
 
 export default function SignIn() {
   const [formData, setFormData] = useState({});
+  const [resetError, setResetError] = useState(null);
   const { loading, error } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -42,6 +43,25 @@ export default function SignIn() {
     // Stage 2 (success branch): if sign in success, set the data to 'currentUser' and enable 'Sign Up' button by setting 'loading = false'
     dispatch(signInSuccess(data));
     navigate("/");
+  };
+
+  const handleClick = async () => {
+    const res = await fetch(`http://localhost:3333/api/auth/forgotPassword`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    });
+    const data = await res.json();
+    console.log(data);
+    if (data.status === "failed") {
+      // Stage 2 (failed branch): if sign in failed, set the data.message to 'error' and enable 'Sign Up' button by setting 'loading = false'
+      setResetError(data.message);
+      return;
+    }
+    // Stage 2 (success branch): if sign in success, set the data to 'currentUser' and enable 'Sign Up' button by setting 'loading = false'
+    navigate("/forgot");
   };
 
   return (
@@ -80,7 +100,17 @@ export default function SignIn() {
           <span className=" text-blue-500 hover:underline">Sign Up</span>
         </Link>
       </div>
+      <div className="flex gap-2 mt-5">
+        <p className=" text-red-500">Forgot your password?</p>
+        <span
+          className=" text-blue-500 hover:cursor-pointer"
+          onClick={handleClick}
+        >
+          send reset email 🔥
+        </span>
+      </div>
       {error ? <p className="text-red-500 mt-5">{error}</p> : ""}
+      {resetError ? <p className="text-red-500 mt-5">{resetError}</p> : ""}
     </div>
   );
 }
